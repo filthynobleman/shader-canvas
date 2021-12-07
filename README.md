@@ -4,7 +4,7 @@ This repository provides a small application for the execution of OpenGL fragmen
 ## Building the Application
 For the building process you need a working [CMake](https://cmake.org/) installation and any C compiler supported by CMake.  
 Navigate inside the project directory and execute the following commands
-```
+```bash
 mkdir build
 cd build
 cmake ..
@@ -13,7 +13,7 @@ cmake --build . --config release
 
 ## Running
 The building process should leave you with an executable named `ShaderCanvas` (on Windows: `ShaderCanvas.exe`). The program can be executed as follows
-```
+```bash
 ./ShaderCanvas [FILENAME] [-w WIDTH] [-h HEIGHT] [-f]
 ```
 The options can be specified in any order and have the following meaning:
@@ -25,11 +25,16 @@ The options can be specified in any order and have the following meaning:
 
 While the program is running, the user can interact with the following keys:
  - `ESC` for closing the application;
- - `R` for reloading the shader from the same file
+ - `R` for reloading the shader from the same file;
+ - `E` for exporting the currently rendered frame.
 
 
 ## Writing the Shaders
 The program will run every fragment shader written in [OpenGL](https://www.opengl.org/) up to version 4.4. No guarantees are provided for newer OpenGL versions.  
+The vertex shader outputs the screen coordinates in `[0.0, 1.0]`. To access them, declare the following input variable
+```glsl
+in vec2 UV;
+```
 The application provides to the fragment shader a time variable. To access it, declare the following uniform variable
 ```glsl
 uniform float Time;

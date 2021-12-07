@@ -14,6 +14,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <stb_image_write.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -72,6 +73,8 @@ const float screen_coords[12] = {
      1.0f, -1.0f,
      1.0f,  1.0f
 };
+
+unsigned char* fb_content;
 
 int main(int argc, char const *argv[])
 {
@@ -156,18 +159,28 @@ int main(int argc, char const *argv[])
 
     // Print instructions
     printf("Press R to recompile the fragment shader from the same file.\n");
+    printf("Press E to export the currentlt rendered frame.\n");
     printf("Press ESC to quit the application.\n");
+
+
+    int stride = 3 * args.width;
+    stride += (stride % 4) * (4 - stride % 4);
+    fb_content = (unsigned char*)malloc(stride * args.height * sizeof(unsigned char));
+    if (fb_content == NULL)
+        fprintf(stderr, "WARNING: Export functionality is disabled!\n");
 
 
     // Main loop
     float Start = glfwGetTime();
+    int CurFrame = 0;
+    char frame_name[512];
     while(!glfwWindowShouldClose(window))
     {
         // ESC quits the application
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE))
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
         // R reloads the fragment shader
-        if (glfwGetKey(window, GLFW_KEY_R))
+        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
         {
             // Read fragment shader, if not default
             fshader_data = NULL;
@@ -188,15 +201,32 @@ int main(int argc, char const *argv[])
             if (args.fshader_file != NULL)
                 free(fshader_data);
         }
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && fb_content != NULL)
+        {
+            int width, height;
+            glfwGetFramebufferSize(window, &width, &height);
+            int stride = 3 * width;
+            stride += (stride % 4) * (4 - stride % 4);
+            glPixelStorei(GL_PACK_ALIGNMENT, 4);
+            glReadBuffer(GL_FRONT);
+            glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, fb_content);
+            sprintf(frame_name, "ShaderCanvas-frame%05d.png", CurFrame);
+            stbi_flip_vertically_on_write(true);
+            stbi_write_png(frame_name, width, height, 3, fb_content, stride);
+        }
 
 
         glClear(GL_COLOR_BUFFER_BIT);
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 
-        float Time = glfwGetTime() - Start;
         glUseProgram(pid);
-        glUniform1f(glGetUniformLocation(pid, "Time"), Time);
+        int TimeLoc = glGetUniformLocation(pid, "Time");
+        if (TimeLoc >= 0)
+        {
+            float Time = glfwGetTime() - Start;
+            glUniform1f(TimeLoc, Time);
+        }        
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
@@ -204,6 +234,8 @@ int main(int argc, char const *argv[])
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+        
+        CurFrame++;
     }
 
 
@@ -219,6 +251,11 @@ int main(int argc, char const *argv[])
 void resize_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+    int stride = 3 * width;
+    stride += (stride % 4) * (4 - stride % 4);
+    fb_content = (unsigned char*)malloc(stride * height * sizeof(unsigned char));
+    if (fb_content == NULL)
+        fprintf(stderr, "WARNING: Export functionality is disabled!\n");
 }
 
 

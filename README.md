@@ -40,3 +40,10 @@ The application provides to the fragment shader a time variable. To access it, d
 uniform float Time;
 ```
 and it can be used everywhere in the shader.
+
+
+## Samples
+The folder `samples` contains some examples for using the shader canvas.  
+ - `gcorr.frag` is a simple example of gamma correction to a colour gradient;
+ - `mandelbrot.frag` is a static rendering of the Mandelbrot set;
+ - `raymarch.frag` is an example of ray marching in a simple scene.

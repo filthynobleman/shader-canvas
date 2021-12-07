@@ -160,6 +160,7 @@ int main(int argc, char const *argv[])
 
 
     // Main loop
+    float Start = glfwGetTime();
     while(!glfwWindowShouldClose(window))
     {
         // ESC quits the application
@@ -193,7 +194,9 @@ int main(int argc, char const *argv[])
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 
+        float Time = glfwGetTime() - Start;
         glUseProgram(pid);
+        glUniform1f(glGetUniformLocation(pid, "Time"), Time);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);

@@ -26,3 +26,12 @@ The options can be specified in any order and have the following meaning:
 While the program is running, the user can interact with the following keys:
  - `ESC` for closing the application;
  - `R` for reloading the shader from the same file
+
+
+## Writing the Shaders
+The program will run every fragment shader written in [OpenGL](https://www.opengl.org/) up to version 4.4. No guarantees are provided for newer OpenGL versions.  
+The application provides to the fragment shader a time variable. To access it, declare the following uniform variable
+```glsl
+uniform float Time;
+```
+and it can be used everywhere in the shader.

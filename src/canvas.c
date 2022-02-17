@@ -26,6 +26,7 @@
 #define false   (0 == 1)
 #endif
 
+#define FREAD_BLOCK_SIZE 4096
 
 typedef struct CanvasArgs
 {
@@ -324,17 +325,17 @@ bool load_file(const char* filename, char** content)
 
     char* block = *content;
     size_t bsize;
-    size_t csize = 4096;
-    while((bsize = fread(block, sizeof(char), 4096, stream)) == 4096)
+    size_t csize = FREAD_BLOCK_SIZE;
+    while((bsize = fread(block, sizeof(char), FREAD_BLOCK_SIZE, stream)) == FREAD_BLOCK_SIZE)
     {
-        csize += 4096;
+        csize += FREAD_BLOCK_SIZE;
         *content = (char*)realloc(*content, csize * sizeof(char));
         if (*content == NULL)
         {
             fprintf(stderr, "Cannot allocate memory for reading file %s.\n", filename);
             exit(-1);
         }
-        block += 4096;
+        block = *content + csize - FREAD_BLOCK_SIZE;
     }
     block[bsize] = '\0';
 
